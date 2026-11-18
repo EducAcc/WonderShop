@@ -1,0 +1,180 @@
+﻿<Window x:Class="YP.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:YP"
+        xmlns:services="clr-namespace:WonderShoe.Services"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        mc:Ignorable="d"
+        Title="Главная" Height="500" MinHeight="500" Width="800" MinWidth="900" Loaded="Window_Loaded">
+    <Window.Resources>
+        <services:StringToImageConverter x:Key="ImgConverter"/>
+        <local:QuantityToStrConverter x:Key="QuantityConverter"/>
+        <local:SmallerThanThreeConverter x:Key="SmallerThanThreeConverter"/>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+
+        <!--Верхняя панель с логином-->
+        <StackPanel Grid.Row="0" Margin="0 0 0 5" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <TextBlock Text="{Binding User.SNP}" Foreground="#70B2AF" Margin="0 0 20 0" VerticalAlignment="Center"/>
+            <Button Content="Войти" Click="LoginBtn_Click"/>
+        </StackPanel>
+
+        <!--Основная панель, зависит от роли-->
+        <TabControl Grid.Row="1">
+            <TabItem Header="Каталог" Visibility="{Binding IsUserAdminOrManager, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Visibility="{Binding IsUserLogin, Converter={StaticResource BoolToVis}}" Margin="0 5 0 10">
+                        <ComboBox SelectionChanged="FilterComboBox_SelectionChanged" Width="auto" materialDesign:HintAssist.Hint="Сортировка по цене">
+                            <ComboBoxItem Content="По возрастанию" Tag="Asc"/>
+                            <ComboBoxItem Content="По убыванию" Tag="Desc"/>
+                        </ComboBox>
+
+                        <ComboBox Name="CategoryCombo" SelectionChanged="CategoryCombo_SelectionChanged" Margin="20 0 20 0" SelectedIndex="0" DisplayMemberPath="Name" materialDesign:HintAssist.Hint="Фильтр по категории"/>
+
+                        <TextBox Text="{Binding SearchProduct, UpdateSourceTrigger=PropertyChanged}" materialDesign:HintAssist.Hint="Поиск по имени"/>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <ListView ItemsSource="{Binding Products}" Grid.Column="0" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                            <!--Шаблон для элемента listview. Задает структуру-->
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="#70B2AF" BorderThickness="1" Tag="{Binding Id}" CornerRadius="4" Padding="10" Margin="0 0 5 0" MouseDown="CardClick_MouseDown">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="Transparent"/>
+
+                                                <!--Триггер для подсвечивание товаров, количество которых <= 3-->
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Stocks, Converter={StaticResource SmallerThanThreeConverter}}" Value="True">
+                                                        <Setter Property="Background" Value="OrangeRed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <Image Source="{Binding Img, Converter={StaticResource ImgConverter}}" Grid.Column="0" Stretch="Uniform" MaxHeight="120" MaxWidth="120" Margin="0 0 10 0"/>
+
+                                            <Grid Grid.Column="1">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <RowDefinition Height="Auto"/>
+                                                </Grid.RowDefinitions>
+
+                                                <!--В лейбле будет 2 биндинга, поэтому вместо задания биндинга в свойстве Text,
+Тут я использую тег TextBlock.Text, в котором указываются нужные мне биндинги-->
+                                                <TextBlock Grid.Row="0" Grid.Column="0" TextWrapping="Wrap" FontSize="16">
+                                                    <TextBlock.Text>
+                                                        <MultiBinding StringFormat="{}{0} | {1}">
+                                                            <Binding Path="Manufacturer.Name"/>
+                                                            <Binding Path="Name"/>
+                                                        </MultiBinding>
+                                                    </TextBlock.Text>
+                                                </TextBlock>
+
+                                                <StackPanel Grid.Row="1" Grid.Column="0">
+                                                    <TextBlock Text="{Binding Subcategory.Category.Name}" FontSize="14"/>
+                                                    <TextBlock Text="{Binding Stocks, Converter={StaticResource QuantityConverter}}" FontSize="12" Margin="0 0 0 5"/>
+                                                    <TextBlock Text="{Binding Content}" FontSize="10" TextWrapping="Wrap"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="1" Grid.Row="1" Margin="10 0 0 0" VerticalAlignment="Top" Text="{Binding Price, StringFormat='{}{0:N2}'}" FontSize="16" FontWeight="SemiBold"/>
+                                            </Grid>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+                        </ListView>
+
+                        <StackPanel Grid.Column="1" Orientation="Vertical" Visibility="{Binding IsCartContainItem, Converter={StaticResource BoolToVis}}">
+                            <ListBox ItemsSource="{Binding Cart}" HorizontalContentAlignment="Stretch" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Grid.Column="0">
+                                                <TextBlock.Text>
+                                                    <MultiBinding StringFormat="{}{0} ({1} шт)">
+                                                        <Binding Path="Product.Name"/>
+                                                        <Binding Path="Quantity"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                            <Button Content="✖️" Grid.Column="1" Click="DeleteCartElementBtn_Click" Background="Transparent" BorderBrush="Transparent"/>
+                                        </Grid>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox >
+                        </StackPanel>
+                    </Grid>
+
+                    <DockPanel Grid.Row="2" Margin="0 10 0 0" LastChildFill="False"  Visibility="{Binding IsCartContainItem, Converter={StaticResource BoolToVis}}">
+                        <Button Content="Очистить корзину" DockPanel.Dock="Left" Click="WipeCartBtn_Click" HorizontalAlignment="Left"/>
+
+                        <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Orientation="Horizontal">
+                            <TextBlock Text="{Binding CartTotal, StringFormat='{}Итог: {0:N2} руб.'}" Margin="0 10 20 0" Foreground="#70B2AF" FontWeight="SemiBold"/>
+                            <Button Content="Оформление заказа"  Click="ApplyOrderBtn_Click"/>
+                        </StackPanel>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Заказы" Visibility="{Binding IsUserAdminOrManager, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0 0 0 10">
+                        <Button Content="Добавить" Click="AddOrderBtn_Click"/>
+                        <Button Content="Удалить" Click="DeleteOrderBtn_Click" Margin="20 0 0 0"/>
+                    </StackPanel>
+                    
+                    <DataGrid Grid.Row="1" ItemsSource="{Binding Orders}" SelectedItem="{Binding SelectedOrder}" MouseDoubleClick="OrdersTable_MouseDoubleClick" AutoGenerateColumns="False" IsReadOnly="True" CanUserAddRows="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Дата" Binding="{Binding Date}"/>
+                            <DataGridTextColumn Header="Пользователь" Binding="{Binding User.SNP}" Width="*"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+
+    </Grid>
+</Window>

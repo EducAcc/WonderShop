@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace YP.Models;
+
+public partial class Subcategory
+{
+    public string? Name { get; set; }
+
+    public int CategoryId { get; set; }
+
+    public int Id { get; set; }
+
+    public virtual Category Category { get; set; } = null!;
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+}

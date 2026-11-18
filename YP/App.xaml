@@ -1,0 +1,33 @@
+﻿<Application x:Class="YP.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:YP"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <materialDesign:CustomColorTheme BaseTheme="Light" 
+                             PrimaryColor="#70B2AF" 
+                             SecondaryColor="#D2F6E7" />
+
+                <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign3.Defaults.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+
+
+            <Style TargetType="{x:Type Window}">
+                <Setter Property="FontFamily" Value="Calibri"/>
+            </Style>
+
+            <Style TargetType="{x:Type FrameworkElement}">
+                <Setter Property="TextElement.FontFamily" Value="Calibri"/>
+            </Style>
+
+            <!--Конвертер, который преобразует true\false в visible\collapsed-->
+            <!--Можно определить тут, чтобы не писать в каждом окне-->
+            <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        </ResourceDictionary>
+
+    </Application.Resources>
+</Application>
