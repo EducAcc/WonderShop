@@ -64,6 +64,8 @@ namespace WonderShoe
                 OnPropertyChanged();
             }
         }
+        public DateTime StartDate { get; } = DateTime.Today.AddYears(-40);
+        public DateTime EndDate { get; } = DateTime.Today;
 
         public ObservableCollection<OrderProduct> Products
         {
@@ -116,13 +118,19 @@ namespace WonderShoe
             }
         }
 
-        private void SaveBtn(object sender, RoutedEventArgs e)
+        private void SaveBtn_Click(object sender, RoutedEventArgs e)
         {
             using (var db = new ShoeShopContext())
             {
                 try
                 {
-                    //if ()
+                    if (OrderDate == null
+                        || OrderDate < StartDate
+                        || OrderDate > EndDate)
+                    {
+                        MessageBox.Show("Выберите корректную дату");
+                        return;
+                    }
 
                     db.SaveChanges();
                 }

@@ -89,7 +89,7 @@ namespace YP
         public ObservableCollection<OrderProduct> Cart
         {
             get;
-            set
+            private set
             {
                 field = value;
                 OnPropertyChanged();

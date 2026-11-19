@@ -14,7 +14,7 @@
 
         <StackPanel Orientation="Vertical" Margin="20" HorizontalAlignment="Left" Grid.Row="0">
             <DockPanel LastChildFill="False">
-                <DatePicker SelectedDate="{Binding OrderDate}" IsEnabled="{Binding IsEditibleMode}" DockPanel.Dock="Left" Width="150" HorizontalAlignment="Left"/>
+                <DatePicker SelectedDate="{Binding OrderDate}" DisplayDateStart="{Binding StartDate, Mode=OneWay}" DisplayDateEnd="{Binding EndDate, Mode=OneWay}" IsEnabled="{Binding IsEditibleMode}" DockPanel.Dock="Left" Width="150" HorizontalAlignment="Left"/>
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" Visibility="{Binding IsEditibleMode, Converter={StaticResource BoolToVis}}">
                     <Button Content="Добавить товар" Click="AddProductBtn_Click"/>
