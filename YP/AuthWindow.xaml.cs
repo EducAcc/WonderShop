@@ -14,7 +14,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using YP.Models;
 
-namespace YP
+namespace WonderShoe
 {
     /// <summary>
     /// Логика взаимодействия для AuthWindow.xaml
