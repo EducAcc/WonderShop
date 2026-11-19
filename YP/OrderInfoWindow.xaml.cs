@@ -34,7 +34,9 @@ namespace WonderShoe
                 OnPropertyChanged(nameof(OrderDate));
             }
         }
+        User _user;
         int _orderId;
+        int _userId;
 
         public DateTime? OrderDate
         {
@@ -77,11 +79,12 @@ namespace WonderShoe
             }
         }
 
-        public OrderInfoWindow(int? orderId = null, bool isEditibleMode = true)
+        public OrderInfoWindow(int userId, int? orderId = null, bool isEditibleMode = true)
         {
             InitializeComponent();
 
             _orderId = orderId ?? 0;
+            _userId = userId;
             IsEditibleMode = isEditibleMode;
 
             Loaded += OnWindow_Loaded;
@@ -90,7 +93,29 @@ namespace WonderShoe
 
         private void AddProductBtn_Click(object sender, RoutedEventArgs e)
         {
+            var catalogWin = new CatalogDialogWindow(_user) { Owner = this };
+            catalogWin.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
+            Hide();
+
+            if (catalogWin.ShowDialog() == true)
+            {
+                foreach (var product in catalogWin.Cart)
+                {
+                    var existing = Products.FirstOrDefault(p => p.Id == product.Id);
+
+                    if (existing == null)
+                    {
+                        Products.Add(product);
+                    }
+                    else
+                    {
+                        existing.Quantity += product.Quantity;
+                    }
+                }
+            }
+
+            Show();
         }
 
         private async void DeleteProductBtn_Click(object sender, RoutedEventArgs e)
@@ -159,6 +184,8 @@ namespace WonderShoe
                     .ToList());
 
                 _order = db.Orders.FirstOrDefault(o => o.Id == _orderId) ?? new Order();
+
+                _user = db.Users.FirstOrDefault(u => u.Id == _userId);
             }
         }
 

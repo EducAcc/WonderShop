@@ -96,7 +96,7 @@ namespace WonderShoe
 
         private void ShowOrderInfoDialog(int? orderId = null, bool isEditibleMode = false)
         {
-            var orderInfoWindow = new OrderInfoWindow(orderId, isEditibleMode);
+            var orderInfoWindow = new OrderInfoWindow(User.Id, orderId, isEditibleMode);
             orderInfoWindow.Owner = this;
             orderInfoWindow.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
